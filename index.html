@@ -1,65 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <title>Knowledge-base search</title>
+  <meta charset="utf-8">
+  <title>Algolia live test</title>
 
-  <!--  Algolia InstantSearch (CDN links keep it simple)  -->
   <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/instantsearch.css@8/themes/satellite-min.css"/>
+        href="https://cdn.jsdelivr.net/npm/instantsearch.css@8/themes/satellite-min.css">
   <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4/dist/algoliasearch-lite.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
-
-  <style>
-    body {font-family: system-ui, sans-serif; margin: 2rem;}
-    #hits .ais-Hits-item {padding:.5rem 0; border-bottom:1px solid #eee;}
-  </style>
 </head>
-
 <body>
-  <h1>Search</h1>
+  <h2>Search demo</h2>
   <div id="searchbox"></div>
   <div id="hits"></div>
   <div id="pagination"></div>
 
   <script>
-    /* 1 – connect to Algolia */
-    const searchClient = algoliasearch(
-      'OEA3R97T8L',                          // Application ID
-      'fadad569da906720d26de36aee217360'     // Search-only API key
-    );
+  // =========  EDIT ONLY THESE TWO LINES  =========
+  const APP_ID     = 'OEA3R97T8L';
+  const SEARCH_KEY = 'fadad569da906720d26de36aee217360';
+  const INDEX_NAME = 'databaseArticleClientFacingyamlid517dsf8618ba9000fcabb59d5ec';
+  // ===============================================
 
-    /* 2 – create an InstantSearch instance */
-    const search = instantsearch({
-      indexName: 'DatabaseArticlesClientFacingv201d517d8f856180ba9000fcab8b95d9c6', // <-- EXACT name
-      searchClient,
-    });
+  const client = algoliasearch(APP_ID, SEARCH_KEY);
+  const search = instantsearch({ indexName: INDEX_NAME, searchClient: client });
 
-    /* 3 – add widgets */
-    search.addWidgets([
-      instantsearch.widgets.searchBox({
-        container: '#searchbox',
-        placeholder: 'Search articles…',
-        showReset: true,
-        showSubmit: true,
-      }),
-      instantsearch.widgets.hits({
-        container: '#hits',
-        templates: {
-          item(hit) {
-            return `
-              <strong>${instantsearch.highlight({attribute:'Name', hit})}</strong>
-              <p>${instantsearch.snippet({attribute:'Keywords', hit})}</p>
-              ${hit.url ? `<a href="${hit.url}" target="_blank">open</a>` : ''}
-            `;
-          },
-        },
-      }),
-      instantsearch.widgets.pagination({container: '#pagination'}),
-    ]);
+  /* widgets */
+  search.addWidgets([
+    instantsearch.widgets.searchBox({ container: '#searchbox', placeholder: 'Search…' }),
+    instantsearch.widgets.hits({
+      container: '#hits',
+      templates: { item: hit => `<strong>${hit.Name}</strong>` }
+    }),
+    instantsearch.widgets.pagination({ container: '#pagination' }),
+  ]);
 
-    /* 4 – go! */
-    search.start();
+  /* simple logger – shows every request/response in the console */
+  search.on('render', () => {
+    const state = search.helper.state;
+    console.log('Last query:', state.query || '""',
+                '| Page:', state.page + 1);
+  });
+
+  search.start();
   </script>
 </body>
 </html>
