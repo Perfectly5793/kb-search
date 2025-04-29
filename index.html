@@ -1,9 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>Algolia Search</title>
     <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+      }
+      #hits div {
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+      }
+    </style>
   </head>
   <body>
     <h2>Search</h2>
@@ -12,15 +23,19 @@
 
     <script>
       const search = instantsearch({
-        indexName: 'search-index',
+        indexName: 'databaseArticlesClientFacing201d157dff856188ba9060fcabbb95d6c',
         searchClient: algoliasearch('OE3AR97T8L', 'fadad569da906720d26de36aee217360'),
       });
 
       search.addWidgets([
-        instantsearch.widgets.searchBox({ container: '#searchbox' }),
+        instantsearch.widgets.searchBox({
+          container: '#searchbox',
+        }),
         instantsearch.widgets.hits({
           container: '#hits',
-          templates: { item: hit => `<div>${hit.name}</div>` }
+          templates: {
+            item: hit => `<div><strong>${hit.Name}</strong><br><em>${hit.Keywords}</em></div>`
+          }
         })
       ]);
 
