@@ -1,48 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Algolia live test</title>
+  <meta charset="utf-8" />
+  <title>Knowledge-base Search</title>
 
+  <!-- InstantSearch over a CDN -->
   <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/instantsearch.css@8/themes/satellite-min.css">
+        href="https://cdn.jsdelivr.net/npm/instantsearch.css@8/themes/satellite-min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4/dist/algoliasearch-lite.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
+
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:2rem;}
+    #hits .ais-Hits-item{padding:.5rem 0;border-bottom:1px solid #ddd;}
+  </style>
 </head>
+
 <body>
-  <h2>Search demo</h2>
+  <h1>Search</h1>
   <div id="searchbox"></div>
   <div id="hits"></div>
   <div id="pagination"></div>
 
   <script>
-  // =========  EDIT ONLY THESE TWO LINES  =========
-  const APP_ID     = 'OE3AR97T8L';
-  const SEARCH_KEY = 'fadad569da906720d26de36aee217360';
-  const INDEX_NAME = 'databaseArticleClientFacingyamlid517dsf8618ba9000fcabb59d5ec';
-  // ===============================================
+    /* ----------  EDIT THESE IF YOU ROLL NEW CREDENTIALS  ---------- */
+    const APP_ID     = 'OE3AR97T8L';   // <- your Algolia “Application ID”
+    const SEARCH_KEY = 'fadad569da906720d26de36aee217360'; // <- search-only key
+    const INDEX_NAME = 'DatabaseArticlesClientFacingv201d517d8f856180ba9000fcab8b95d9c6';
+    /* ---------------------------------------------------------------- */
 
-  const client = algoliasearch(APP_ID, SEARCH_KEY);
-  const search = instantsearch({ indexName: INDEX_NAME, searchClient: client });
+    /* One-host mode avoids corporate DNS filters that block *.algolianet.com */
+    const searchClient = algoliasearch(
+      APP_ID,
+      SEARCH_KEY,
+      { hosts: [ { url: `${APP_ID}.algolia.net`, accept: 'read', protocol: 'https' } ] } // :contentReference[oaicite:0]{index=0}
+    );
 
-  /* widgets */
-  search.addWidgets([
-    instantsearch.widgets.searchBox({ container: '#searchbox', placeholder: 'Search…' }),
-    instantsearch.widgets.hits({
-      container: '#hits',
-      templates: { item: hit => `<strong>${hit.Name}</strong>` }
-    }),
-    instantsearch.widgets.pagination({ container: '#pagination' }),
-  ]);
+    const search = instantsearch({ indexName: INDEX_NAME, searchClient });
 
-  /* simple logger – shows every request/response in the console */
-  search.on('render', () => {
-    const state = search.helper.state;
-    console.log('Last query:', state.query || '""',
-                '| Page:', state.page + 1);
-  });
+    search.addWidgets([
+      instantsearch.widgets.searchBox({
+        container: '#searchbox',
+        placeholder: 'Search articles…',
+      }),
+      instantsearch.widgets.hits({
+        container: '#hits',
+        templates: {
+          item(hit){
+            return `<strong>${hit.Name}</strong><br>${hit.Keywords ?? ''}`;
+          }
+        }
+      }),
+      instantsearch.widgets.pagination({ container: '#pagination' })
+    ]);
 
-  search.start();
+    search.start();
   </script>
 </body>
 </html>
